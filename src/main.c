@@ -22,7 +22,7 @@ int main (int argc, char *argv[])
 		}
 
 		css_scan_Attribute.Position.FileName = MakeIdent1 (argv[1]);
- 		/*css_scan_beginFile (argv[1]);*/
+        css_scan_BeginFile(argv[1]);
 	}
 
 	BeginTree ();
