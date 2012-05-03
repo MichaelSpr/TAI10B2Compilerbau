@@ -40,7 +40,7 @@ ruleset_l = <
   = ruleset ruleset_l .
   >.
 
-ruleset = selector '{' declaration_l '}' .
+ruleset = tok_selector '{' declaration_l '}' .
 
 declaration_l = <
   = declaration .
@@ -48,15 +48,14 @@ declaration_l = <
   >.
   
 declaration = <
-  = property ':' expr ';' .
-  = property ':' expr prio .
+  = tok_property ':' tok_value ';' .
+  = tok_property ':' expr prio .
   >.
   
 prio = "!important" .
-selector = Identifier .
-property = Identifier.
 expr = < c:int_const .
     = c:float_const .
+    = tok_value .
   >.
   
 

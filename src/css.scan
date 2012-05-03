@@ -34,11 +34,11 @@ EXPORT {
     tvalue value;
   } css_scan_tScanAttribute;
 
-  # define tok_int_const 1
-  # define tok_float_const 2
-  # define tok_property 4
-  # define tok_selector 3
-  # define tok_value 5
+  #define TOK_INT_CONST 1
+  #define TOK_FLOAT_CONST 2
+  #define TOK_SELECTOR  3
+  #define TOK_PROPERTY  4
+  #define TOK_VALUE     5
   
 
 }
@@ -109,30 +109,32 @@ RULES
 {
   css_scan_GetWord (string);
   css_scan_Attribute.selector.Value = string;
-  return tok_selector;
+  return TOK_SELECTOR;
 }
-	
    
 #STD# "{":
 {
-  printf(">");
   yyStart (DECLARATION); /* --> In Zustand #DECLARATION# */
 }
 
 #DECLARATION# "}":
 {
-  printf("<");
   yyStart (STD);/* --> In Zustand STD aus DECLARATION */
 }
-
-
 
 
 /* Property */
 #DECLARATION# props:
 {
-  printf("p");
-	 css_scan_GetWord (string);
-	  css_scan_Attribute.property.Value = string;
-	  return tok_property; 
+  css_scan_GetWord (string);
+  css_scan_Attribute.property.Value = string;
+  return TOK_PROPERTY; 
+}
+
+/* VALUE */
+#DECLARATION# (letter*|digit*|"#")+ :
+{
+  css_scan_GetWord (string);
+  css_scan_Attribute.value.Value = string;
+  return TOK_VALUE; 
 }
