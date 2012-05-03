@@ -17,7 +17,12 @@ PARSER  css_pars
 
 GLOBAL {
  # include <stdio.h>
+ # include "Idents.h"
+ # include "rString.h"
  # include "Tree.h"
+ 
+ typedef struct tString {
+ }
 }
 
 PREC LEFT  '?'
@@ -31,7 +36,7 @@ PREC LEFT  '?'
      LEFT UNARY
 
 RULE
-root 	= l:stylesheet .
+root 	= stylesheet .
 
 stylesheet = ruleset_l .
 
@@ -40,7 +45,7 @@ ruleset_l = <
   = ruleset ruleset_l .
   >.
 
-ruleset = tok_selector '{' declaration_l '}' .
+ruleset = selector '{' declaration_l '}' .
 
 declaration_l = <
   = declaration .
@@ -48,22 +53,26 @@ declaration_l = <
   >.
   
 declaration = <
-  = tok_property ':' tok_value ';' .
-  = tok_property ':' expr prio .
+  = property ':' expr ';' .
+  = property ':' expr prio .
   >.
   
 prio = "!important" .
 expr = < c:int_const .
     = c:float_const .
-    = tok_value .
+    = value .
   >.
   
 
 
 /* Tokens */
-int_const:    [Value: long]   {Value := 0;  } .
-float_const:  [Value: double] {Value := 0.0;} .
-
+Tokens:        [pos:  tPosition ] {pos    := NoPosition;      } <
+  int_const:  [Value: long]       {Value := 0;  } .
+  float_const:[Value: double]     {Value := 0.0;} .
+  selector:   [Ident: tIdent]     {Ident := NoIdent;  } .
+  property:   [Value: tStringRef] {Value := PutString ("0", 1); } .
+  tokValue:   [Value: tStringRef] {Value := PutString ("0", 1); } .
+> . // Tokens
 // Identifier:	[Value: const char*] {Value := "Identifier";} .
 
 /* non-terminal attributes */

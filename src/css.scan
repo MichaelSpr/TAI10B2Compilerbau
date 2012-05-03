@@ -17,30 +17,7 @@ EXPORT {
  * LPP extracts the token-attribute declaration from the parser specification.
  * They are inserted here.
   */
-  typedef int tToken;
-  typedef struct {tPosition Pos; char* Value;} tselector;
-  typedef struct {tPosition Pos; int Value;} tint_const;
-  typedef struct {tPosition Pos; double Value;} tfloat_const;
-  typedef struct {tPosition Pos; char* Value;} tproperty;
-  typedef struct {tPosition Pos; char* Value;} tvalue;
-
-
-  typedef union {
-    tPosition   Position;
-    tselector selector;
-    tint_const int_const;
-    tfloat_const float_const;
-    tproperty property;
-    tvalue value;
-  } css_scan_tScanAttribute;
-
-  #define TOK_INT_CONST 1
-  #define TOK_FLOAT_CONST 2
-  #define TOK_SELECTOR  3
-  #define TOK_PROPERTY  4
-  #define TOK_VALUE     5
-  
-
+INSERT tScanAttribute
 }
 
 GLOBAL {
@@ -101,25 +78,22 @@ START DECLARATION, COMMENT
 
 RULES
 
-/* INSERT RULES #STD# */
-
-
 /* SELECTOR */
 #STD# (letter | {#_.})[1] (letter*|digit*) :
 {
   css_scan_GetWord (string);
-  css_scan_Attribute.selector.Value = string;
-  return TOK_SELECTOR;
+  css_scan_Attribute.selector.Ident = string;
+  return selector;
 }
    
 #STD# "{":
 {
-  yyStart (DECLARATION); /* --> In Zustand #DECLARATION# */
+  yyStart (DECLARATION); /* --> In Zustand #DECLARATION# gehen */
 }
 
 #DECLARATION# "}":
 {
-  yyStart (STD);/* --> In Zustand STD aus DECLARATION */
+  yyStart (STD);/* --> In Zustand STD gehen; komme aus DECLARATION */
 }
 
 
@@ -128,13 +102,16 @@ RULES
 {
   css_scan_GetWord (string);
   css_scan_Attribute.property.Value = string;
-  return TOK_PROPERTY; 
+  return property; 
 }
 
 /* VALUE */
 #DECLARATION# (letter*|digit*|"#")+ :
 {
   css_scan_GetWord (string);
-  css_scan_Attribute.value.Value = string;
-  return TOK_VALUE; 
+  css_scan_Attribute.tokValue.Value = string;
+  return tokValue; 
 }
+
+
+INSERT RULES #STD#
