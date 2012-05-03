@@ -82,8 +82,8 @@ RULES
 #STD# (letter | {#_.})[1] (letter*|digit*) :
 {
   css_scan_GetWord (string);
-  css_scan_Attribute.selector.Ident = string;
-  return selector;
+  css_scan_Attribute.selector_const.Selector = string;
+  return selector_const;
 }
    
 #STD# "{":
@@ -101,16 +101,16 @@ RULES
 #DECLARATION# props:
 {
   css_scan_GetWord (string);
-  css_scan_Attribute.property.Value = string;
-  return property; 
+  css_scan_Attribute.property_const.Property = string;
+  return property_const; 
 }
 
 /* VALUE */
 #DECLARATION# (letter*|digit*|"#")+ :
 {
   css_scan_GetWord (string);
-  css_scan_Attribute.tokValue.Value = string;
-  return tokValue; 
+  css_scan_Attribute.value_const.Value = string;
+  return value_const; 
 }
 
 

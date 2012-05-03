@@ -20,9 +20,7 @@ GLOBAL {
  # include "Idents.h"
  # include "rString.h"
  # include "Tree.h"
- 
- typedef struct tString {
- }
+
 }
 
 PREC LEFT  '?'
@@ -45,7 +43,7 @@ ruleset_l = <
   = ruleset ruleset_l .
   >.
 
-ruleset = selector '{' declaration_l '}' .
+ruleset = selector_const '{' declaration_l '}' .
 
 declaration_l = <
   = declaration .
@@ -53,27 +51,26 @@ declaration_l = <
   >.
   
 declaration = <
-  = property ':' expr ';' .
-  = property ':' expr prio .
+  = property_const ':' expr ';' .
+  = property_const ':' expr prio .
   >.
   
 prio = "!important" .
 expr = < c:int_const .
     = c:float_const .
-    = value .
+    = value_const .
   >.
   
 
 
 /* Tokens */
-Tokens:        [pos:  tPosition ] {pos    := NoPosition;      } <
-  int_const:  [Value: long]       {Value := 0;  } .
-  float_const:[Value: double]     {Value := 0.0;} .
-  selector:   [Ident: tIdent]     {Ident := NoIdent;  } .
-  property:   [Value: tStringRef] {Value := PutString ("0", 1); } .
-  tokValue:   [Value: tStringRef] {Value := PutString ("0", 1); } .
+Tokens:        [pos:  tPosition ]       {pos   := NoPosition; } <
+  int_const:        [Value: long]       {Value := 0;  } .
+  float_const:      [Value: double]     {Value := 0.0;} .
+  selector_const:   [Selector: tIdent]     {Selector := NoIdent;  } .
+  property_const:   [Property: tStringRef] {Property := PutString ("0", 1); } .
+  value_const:      [Value: tStringRef] {Value := PutString ("0", 1); } .
 > . // Tokens
-// Identifier:	[Value: const char*] {Value := "Identifier";} .
 
 /* non-terminal attributes */
 MODULE attributes
