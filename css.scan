@@ -1,0 +1,52 @@
+/* scanner für den css parser im kurs compilerbau bei pro. dr. vollmer an der dhbw karlsruhe */
+
+SCANNER css_scan
+
+EXPORT {
+
+# include "Position.h"
+
+insert tscanAttribute
+}
+
+GLOBAL{
+
+# include <stdlib.h>
+# include "Errors.h"
+
+INSERT ErrorAttribute
+}
+
+LOCAL{
+
+}
+
+DEFAULT{
+
+MessageI ("Illegal Charakter",
+	  xxError, css_scan_Attribute.Position,
+          xxCharacter, css_scan_TokenPtr);
+
+}
+
+EOF {
+
+}
+
+DEFINE
+
+RULES
+
+
+
+
+
+
+
+
+
+
+
+
+
+
