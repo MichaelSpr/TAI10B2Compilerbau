@@ -16,19 +16,38 @@ EXPORT {
  * token attributes.
  * LPP extracts the token-attribute declaration from the parser specification.
  * They are inserted here.
- */
-INSERT tScanAttribute
+  */
+  typedef int tToken;
+  typedef struct {tPosition Pos; char* Value;} tselector;
+  typedef struct {tPosition Pos; int Value;} tint_const;
+  typedef struct {tPosition Pos; double Value;} tfloat_const;
+  typedef struct {tPosition Pos; char* Value;} tproperty;
+  typedef struct {tPosition Pos; char* Value;} tvalue;
+
+
+  typedef union {
+    tPosition   Position;
+    tselector selector;
+    tint_const int_const;
+    tfloat_const float_const;
+    tproperty property;
+    tvalue value;
+  } css_scan_tScanAttribute;
+
+  # define tok_int_const 1
+  # define tok_float_const 2
+  # define tok_property 4
+  # define tok_selector 3
+  # define tok_value 5
+
 }
 
 GLOBAL {
 /* code to be put into Scanner.c */
 # include <stdlib.h>
-# include "Errors.h"
-
 /* Insert the routine computing "error-values" of attributes, in case the
  * parser decides during error repair to insert a token.
  */
-INSERT ErrorAttribute
 }
 
 LOCAL {
@@ -57,10 +76,6 @@ EOF {
     Message ("unclosed C-comment",
 	     xxError, css_scan_Attribute.Position);
     break;
-  case COMMENT2:
-    Message ("unclosed Modula-comment",
-	     xxError, css_scan_Attribute.Position);
-    break;
   default:
     Message ("OOPS: that should not happen!!",
 	     xxFatal, css_scan_Attribute.Position);
@@ -71,60 +86,87 @@ EOF {
 }
 
 DEFINE /* some abbreviations */
-  digit  = {0-9}       .
+  digit  = {0-9} .
+  letter = {a-zA-Z} .
+   property = ("azimuth"|"background-attachment"|"background-color"|"background-image"|"background-position"|"background-repeat"|"background"|"border-collapse"|"border-color"|"border-spacing"|"border-style"|"border-top"|"border-right"|"border-bottom"|"border-left"|"border-top-color"|"border-right-color"|"border-bottom-color"|"border-left-color"|"border-top-style"|"border-right-style"|"border-bottom-style"|"border-left-style"|"border-top-width"|"border-right-width"|"border-bottom-width"|"border-left-width"|"border-width"|"border"|"bottom"|"caption-side"|"clear"|"clip"|"color"|"content"|"counter-increment"|"counter-reset"|"cue-after"|"cue-before"|"cue"|"cursor"|"direction"|"display"|"elevation"|"empty-cells"|"float"|"font-family"|"font-size"|"font-style"|"font-variant"|"font-weight"|"font"|"height"|"left"|"letter-spacing"|"line-height"|"list-style-image"|"list-style-position"|"list-style-type"|"list-style"|"margin-right"|"margin-left"|"margin-top"|"margin-bottom"|"margin"|"max-height"|"max-width"|"min-height"|"min-width"|"orphans"|"outline-color"|"outline-style"|"outline-width"|"outline"|"overflow"|"padding-top"|"padding-right"|"padding-bottom"|"padding-left"|"padding"|"page-break-after"|"page-break-before"|"page-break-inside"|"pause-after"|"pause-before"|"pause"|"pitch-range"|"pitch"|"play-during"|"position"|"quotes"|"richness"|"right"|"speak-header"|"speak-numeral"|"speak-punctuation"|"speak"|"speech-rate"|"stress"|"table-layout"|"text-align"|"text-decoration"|"text-indent"|"text-transform"|"top"|"unicode-bidi"|"vertical-align"|"visibility"|"voice-family"|"volume"|"white-space"|"widows"|"width"|"word-spacing"|"z-index").
 
 /* define start states, note STD is defined by default */
-START COMMENT, COMMENT2
+START RULESET_END, INTEGER, FLOAT, RULESET_BEGIN, DECLARATION_VALUE, DECLARATION_PROPERTY, COMMENT
 
 RULES
 
-/* Integers */
-#STD# {0-9}+ :
-	{css_scan_GetWord (string);
-	 css_scan_Attribute.int_const.Value = atol (string);
-	 return int_const;
+INSERT RULES #STD#
+
+
+#STD# (letter | {#_.})[1] (letter*|digit*) :
+	{
+
+ 	  css_scan_GetWord (string);
+ 	  css_scan_Attribute.selector.Value = atof (string);
+ 	  return selector;
 	}
-
-/* Float numbers */
-#STD# digit + "." digit * (("E"|"e") ("+"|"-") ? digit +) ? :
-	{css_scan_GetWord (string);
-	 css_scan_Attribute.float_const.Value = atof (string);
-	 return float_const;
-	}
-
-#STD# < "--" ANY * > :
-        { /* comment up to end of line, nothing to do */
-        }
-
-/* C-style comment */
+	
+	
 #STD# "/*" :
-	{ /**/
+	{ 
 	  yyStart (COMMENT);
 	}
 
+#RULESET_END# "}":
+{
+  yyStart (STD);
+}
+
+/* Integers */
+#INTEGER# {0-9}+ :
+	{
+ 	  css_scan_Attribute.int_const.Value =
+ 	   malloc(css_scan_TokenLength +1);
+ 	  css_scan_GetWord( css_scan_Attribute.int_const.Value);
+ 	 return tok_int_const;
+	}
+
+/* Float numbers */
+#FLOAT# digit + "." digit: 
+	{
+ 	  css_scan_Attribute.float_const.Value =
+ 	   malloc(css_scan_TokenLength +1);
+ 	  css_scan_GetWord( css_scan_Attribute.float_const.Value);
+ 	 return tok_float_const;
+	}
+
+
+
 #COMMENT# - {*\n\t} + | "*" :
-        {}
+        {
+	  
+	}
 
 #COMMENT# "*/" :
         {yyStart (STD);
 	}
 
-/* Modula2-style nested comment */
-#STD,COMMENT2# "(*" :
-	{ yyStart (COMMENT2);
-	  nesting ++;
-	}
 
-#COMMENT2# - {*(\n\t} + | "*" | "(" :
-        {}
 
-#COMMENT2# "*)" :
-        { nesting --;
-	  if (nesting == 0) {
-	    yyStart (STD);
-	  }
-	}
+#DECLARATION_PROPERTY#  property ":":
+{
 
-INSERT RULES #STD#
+	 css_scan_GetWord (string);
+	  css_scan_Attribute.property.Value = atof (string);
+	  return property; 
+}
 
-/**********************************************************************/
+#DECLARATION_VALUE# (digit*|letter*|\#|" ")+ ";":
+{
+
+     css_scan_GetWord (string);
+     css_scan_Attribute.value.Value = atof (string);
+     return value;
+}
+
+
+	
+#RULESET_BEGIN# "{":
+{
+  yyStart (DECLARATION_PROPERTY);
+}
