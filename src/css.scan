@@ -48,6 +48,7 @@ GLOBAL {
 /* Insert the routine computing "error-values" of attributes, in case the
  * parser decides during error repair to insert a token.
  */
+INSERT ErrorAttribute
 }
 
 LOCAL {
@@ -102,8 +103,8 @@ INSERT RULES #STD#
 	{
 
  	  css_scan_GetWord (string);
- 	  css_scan_Attribute.selector.Value = atof (string);
- 	  return selector;
+ 	  css_scan_Attribute.selector.Value = string;
+ 	  return tok_selector;
 	}
 	
 	
@@ -120,19 +121,17 @@ INSERT RULES #STD#
 /* Integers */
 #INTEGER# {0-9}+ :
 	{
- 	  css_scan_Attribute.int_const.Value =
- 	   malloc(css_scan_TokenLength +1);
- 	  css_scan_GetWord( css_scan_Attribute.int_const.Value);
- 	 return tok_int_const;
+	  css_scan_GetWord (string);
+	  css_scan_Attribute.int_const.Value = atol (string);
+	  return tok_int_const;
 	}
 
 /* Float numbers */
 #FLOAT# digit + "." digit: 
 	{
- 	  css_scan_Attribute.float_const.Value =
- 	   malloc(css_scan_TokenLength +1);
- 	  css_scan_GetWord( css_scan_Attribute.float_const.Value);
- 	 return tok_float_const;
+	  css_scan_GetWord (string);
+	  css_scan_Attribute.float_const.Value = atof (string);
+	  return tok_float_const;
 	}
 
 
@@ -152,16 +151,16 @@ INSERT RULES #STD#
 {
 
 	 css_scan_GetWord (string);
-	  css_scan_Attribute.property.Value = atof (string);
-	  return property; 
+	  css_scan_Attribute.property.Value = string;
+	  return tok_property; 
 }
 
 #DECLARATION_VALUE# (digit*|letter*|\#|" ")+ ";":
 {
 
      css_scan_GetWord (string);
-     css_scan_Attribute.value.Value = atof (string);
-     return value;
+     css_scan_Attribute.value.Value = string;
+     return tok_value;
 }
 
 
