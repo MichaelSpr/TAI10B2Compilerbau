@@ -49,7 +49,7 @@ CLOSE {
 PROPERTY INPUT  /* all attributes are parameters of the generate the mXX() routines */
 
 RULE  /* Here we define the node types */
-
+  
 /* list of expressions */
 EXPRS = <
   no_exprs	= /* end of list */

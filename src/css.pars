@@ -34,31 +34,64 @@ PREC LEFT  '?'
      LEFT UNARY
 
 RULE
-root 	= stylesheet .
+root 	= stylesheet 
+	  {=> {TreeRoot = ReverseTree (stylesheet:tree);};} 
+	  .
 
-stylesheet = ruleset_l .
+stylesheet = ruleset_l 
+	     {tree := mstylesheet(ruleset_l:tree);}
+	     .
 
 ruleset_l = <
-  = ruleset .
-  = ruleset ruleset_l .
+  =
+    {tree := mno_ruleset_l();}
+    .
+  = ruleset 
+    {tree := mruleset_l(mno_ruleset_l(), ruleset:tree);}
+    .
+  = l:ruleset_l r:ruleset 
+    {tree := mruleset_l (l:tree, r:tree);}
+    .
   >.
 
-ruleset = selector_const '{' declaration_l '}' .
+ruleset = l:selector_const '{' r:declaration_l '}' 
+	  {tree := mrulesets(l:Selector, r:tree);}
+	  .
 
 declaration_l = <
-  = declaration .
-  = declaration declaration_l .
+  = /* epsilon */
+      {tree := mno_declaration_l();}
+    .
+  = declaration 
+    {tree := mdeclaration_l (mno_declaration_l(), declaration:tree);}
+    .
+  = l:declaration_l r:declaration 
+    {tree := mdeclaration_l (l:tree, r:tree);}
+    .
   >.
   
 declaration = <
-  = property_const ':' expr ';' .
-  = property_const ':' expr prio .
+  = l:property_const ':' r:expr ';' 
+    {tree := mdeclaration(l:Property, r:tree);}
+    .
+  = l:property_const ':' r:expr e:prio ';'
+    {tree := mdeclaration(l:Property, r:tree, e:tree);}
+    .
   >.
   
-prio = "!important" .
-expr = < c:int_const .
-    = c:float_const .
-    = value_const .
+prio = "!important" 
+      {tree := mprio ();}
+      .
+expr = < 
+  = c:int_const 
+    {tree := mint_const (c:Position, c:Value);}
+    .
+  = c:float_const 
+    {tree := mfloat_const (c:Position, c:Value);}
+    .
+  = c:value_const
+    {tree := mvalue_const (c:Position, c:Value);}
+    .
   >.
   
 
@@ -76,6 +109,11 @@ Tokens:        [pos:  tPosition ]       {pos   := NoPosition; } <
 MODULE attributes
 PROPERTY SYN
 DECLARE
- css
- css_l = [tree: tTree].
+ stylesheet
+ declaration_l
+ declaration
+ prio
+ expr
+ ruleset_l
+ ruleset = [tree: tTree].
 END attributes
