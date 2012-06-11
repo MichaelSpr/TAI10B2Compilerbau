@@ -1,5 +1,3 @@
-// projekt css parser für uebau kurs bei prf. dr. vollmer an der dhbw karlsruhe
-
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -9,6 +7,7 @@
 # include "css_scan.h"
 # include "css_pars.h"
 # include "Tree.h"
+
 
 int main (int argc, char *argv[])
 {
@@ -23,17 +22,17 @@ int main (int argc, char *argv[])
 		}
 
 		css_scan_Attribute.Position.FileName = MakeIdent1 (argv[1]);
-		css_scan_beginFile (argv[1]);
+ 		/*css_scan_beginFile (argv[1]);*/
 	}
 
 	BeginTree ();
 
 	errors = css_pars ();
-	printf ("parser returned: %d number of errors: &d\n",
+	printf ("parser returned: %d number of errors: %d\n",
 		errors,GetCount (xxError));
 
 	if (!CheckTree (TreeRoot)) {
-		fprintf (stderr, "DerBazm ist falsch aufgebaut\n");
+		fprintf (stderr, "Der Baum ist falsch aufgebaut\n");
 		exit(1);
 	}
 
@@ -44,7 +43,3 @@ int main (int argc, char *argv[])
 	return 0;
 
 }
-
--- 
- Ihr WEB.DE Postfach immer dabei: die kostenlose WEB.DE Mail App für iPhone und Android.
-https://produkte.web.de/freemail_mobile_startseite/

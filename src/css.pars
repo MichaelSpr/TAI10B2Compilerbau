@@ -1,20 +1,19 @@
 /* Project:  COCKTAIL training
  * Descr:    A simple pocket computer (scanner, parser, AST construction)
  * Kind:     Parser specification
- * Author:   Prof. Dr. Juergen Vollmer <vollmer@dhbw-karlsruhe.de>
- * $Id: expr.pars.in,v 1.6 2010/04/26 14:00:29 vollmer Exp $
+ * $Id: css.pars.in,v 1.6 2010/04/26 14:00:29 vollmer Exp $
  */
 
 // Exercises:
 //  - Add computation of the "Tree" Attribute to all grammar rules.
 //  - Add grammar and tree construction rules to construct an AST for
-//    "sin()", "cos()", and "tan()" (see expr.ast)
+//    "sin()", "cos()", and "tan()" (see css.ast)
 //    Add a grammar and evaluation rule for the constant    "pi"
 //  - Add more test sources to test your grammar
 
-SCANNER expr_scan
+SCANNER css_scan
 
-PARSER  expr_pars
+PARSER  css_pars
 
 GLOBAL {
  # include <stdio.h>
@@ -32,94 +31,45 @@ PREC LEFT  '?'
      LEFT UNARY
 
 RULE
-root 	= l:expr_l
-	  {=> {TreeRoot = ReverseTree (l:tree);};}
-	  // ReverseTree() is needed since expr_l is a left recursive list
-	.
+root 	= l:stylesheet .
 
-expr_l	= <
-	= /* epsilon */
-	  {tree := mno_exprs();}
-	.
- exprs  = <
-	= e:expr
-	  {tree := mexprs (mno_exprs(), e:tree);}
-	.
-	= l:exprs ',' e:expr
-	  // left recursive list
-	  {tree := mexprs (l:tree, e:tree);}
-	.
-/* TODO: try what's happening if a right recursive list is used instead of a left one.
-        = e:expr ',' l:exprs
-	  // right recursive list
-	  {tree := mexprs (l:tree, e:tree);}
-	.
-*/
- > . /* exprs */
-> . /* expr_l */
+stylesheet = ruleset_l .
 
-expr = <
-	= c:int_const
-	  {tree := mint_const (c:Position, c:Value);}
-	.
-	= c:float_const
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= '(' expr ')'
-	.
-	= l:expr o:'+' r:expr
-	  {tree := mbinary_expr (o:Position, '+', l:tree, r:tree);}
-	.
-	= l:expr o:'-' r:expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= l:expr o:'*'r:expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= l:expr o:'/' r:expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= l:expr o:'^' r:expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= c:expr o:'?' t:expr ':' e:expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= o:'+' expr   PREC UNARY
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= o:'-' expr   PREC UNARY
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= l:expr o:'>' r:expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= l:expr o:'<' r:expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= l:expr o:'=' r:expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= l:expr o:'&' r:expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= l:expr o:'|' r:expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-	= o:'!' expr
-	  {tree := 0; } // TODO: fix this by adding the correct tree construction
-	.
-// Add rules for sin(), cos(), tan() and the constant pi, how is it represented in the AST?
-> . /* expr */
+ruleset_l = <
+  = ruleset .
+  = ruleset ruleset_l .
+  >.
+
+ruleset = selector '{' declaration_l '}' .
+
+declaration_l = <
+  = declaration .
+  = declaration declaration_l .
+  >.
+  
+declaration = <
+  = property ':' expr ';' .
+  = property ':' expr prio .
+  >.
+  
+prio = "!important" .
+selector = Identifier .
+property = Identifier.
+expr = < c:int_const .
+    = c:float_const .
+  >.
+  
+
 
 /* Tokens */
 int_const:    [Value: long]   {Value := 0;  } .
 float_const:  [Value: double] {Value := 0.0;} .
+// Identifier:	[Value: const char*] {Value := "Identifier";} .
 
 /* non-terminal attributes */
 MODULE attributes
 PROPERTY SYN
 DECLARE
- expr
- expr_l = [tree: tTree].
+ css
+ css_l = [tree: tTree].
 END attributes

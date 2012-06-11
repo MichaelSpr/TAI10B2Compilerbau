@@ -1,11 +1,13 @@
-body {
-background-color: #ffffff;
-font-family: sans-serif;
-color: #000000;
-margin: 0;
-padding: 0;
-background: url('themes/original/img/logo_right.png') no-repeat
-fixed bottom right;
+
+body 
+{
+  background-color: #ffffff;
+  font-family: sans-serif;
+  color: #000000;
+  margin: 0;
+  padding: 0;
+  background: url('themes/original/img/logo_right.png') no-repeat
+  fixed bottom right;
 }
 
 img {
