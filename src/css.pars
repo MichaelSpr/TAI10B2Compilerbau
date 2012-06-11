@@ -39,7 +39,7 @@ root 	= stylesheet
 	  .
 
 stylesheet = ruleset_l 
-	     {tree := mstylesheet(ruleset_l:tree);}
+	     {tree := mstylesheet_l(ruleset_l:tree);}
 	     .
 
 ruleset_l = <
@@ -55,7 +55,7 @@ ruleset_l = <
   >.
 
 ruleset = l:selector_const '{' r:declaration_l '}' 
-	  {tree := mrulesets(l:Selector, r:tree);}
+	  {tree := mruleset(l:Selector, r:tree);}
 	  .
 
 declaration_l = <
@@ -73,9 +73,6 @@ declaration_l = <
 declaration = <
   = l:property_const ':' r:expr ';' 
     {tree := mdeclaration(l:Property, r:tree);}
-    .
-  = l:property_const ':' r:expr e:prio ';'
-    {tree := mdeclaration(l:Property, r:tree, e:tree);}
     .
   >.
   
