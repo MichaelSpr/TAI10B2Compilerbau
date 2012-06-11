@@ -1,0 +1,94 @@
+/* Project:  COCKTAIL training
+ * Descr:    A simple pocket computer (scanner, parser, AST construction)
+ * Kind:     Parser specification
+ * Author:   Prof. Dr. Juergen Vollmer <vollmer@dhbw-karlsruhe.de>
+ * $Id: expr.pars.in,v 1.6 2010/04/26 14:00:29 vollmer Exp $
+ */
+
+// Exercises:
+//  - Add computation of the "Tree" Attribute to all grammar rules.
+//  - Add grammar and tree construction rules to construct an AST for
+//    "sin()", "cos()", and "tan()" (see expr.ast)
+//    Add a grammar and evaluation rule for the constant    "pi"
+//  - Add more test sources to test your grammar
+
+SCANNER expr_scan
+
+PARSER  expr_pars
+
+GLOBAL {
+ # include <stdio.h>
+ # include "Tree.h"
+}
+
+PREC NONE  '<' '>' '='
+     LEFT  '+' '-'
+     LEFT  '*' '/'
+     LEFT UNARY
+
+RULE
+root 	= l:ruleset_l
+	  {=> {TreeRoot = ReverseTree (l:tree);};}
+	  .
+
+ruleset_l =<
+    = /* epsilon */
+      {tree := mno_rulesets();}
+    .
+    rulesets = <
+      = e:ruleset
+	{tree := mrulesets(mno_rulesets(), e:tree);}
+      .
+      = l:rulesets e:ruleset //left rekursiv
+	{tree := mrulesets (l:tree, e:tree);}
+      .
+    >.
+>.
+
+ruleset = <
+    = l:identifier '{' e:declaration_l '}' // selector
+      {tree := mrulesets(l:Ident, e:tree);}
+    .
+>.
+
+declaration_l =<
+    = /* epsilon */
+      {tree := mno_declarations();}
+    .
+    declarations = <
+      = e:declaration
+	{tree := mdeclarations (mno_declarations(), e:tree);}
+      .
+      = l:declarations e:declaration //left rekursiv
+	{tree := mdeclarations (l:tree, e:tree);}
+      .
+    >.
+>.
+
+declaration = <
+    = l:identifier ':' e:int_const ';' // property : value/expr
+      {tree := mdeclaration(l:Ident, mint_const (e:Position, e:Value));}
+    .
+    = l:identifier ':' e:float_const ';' // property : value/expr
+      {tree := mdeclaration(l:Ident, mfloat_const (e:Position, e:Value));}
+    .
+>.
+
+
+    
+	
+
+/* Tokens */
+int_const:    [Value: long]   {Value := 0;  } .
+float_const:  [Value: double] {Value := 0.0;} .
+identifier:   [Ident: tIdent] {Ident := NoIdent;} .
+
+/* non-terminal attributes */
+MODULE attributes
+PROPERTY SYN
+DECLARE
+ declaration_l
+ declaration
+ ruleset
+ ruleset_l = [tree: tTree].
+END attributes
