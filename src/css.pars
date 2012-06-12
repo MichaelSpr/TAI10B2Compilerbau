@@ -55,7 +55,7 @@ ruleset_l = <
   >.
 
 ruleset = l:selector_const '{' r:declaration_l '}' 
-	  {tree := mrulesets(l:Selector, r:tree);}
+	  {tree := mruleset(l:Selector, r:tree);}
 	  .
 
 declaration_l = <
@@ -69,13 +69,10 @@ declaration_l = <
     {tree := mdeclaration_l (l:tree, r:tree);}
     .
   >.
-  
+    
 declaration = <
   = l:property_const ':' r:expr ';' 
     {tree := mdeclaration(l:Property, r:tree);}
-    .
-  = l:property_const ':' r:expr e:prio ';'
-    {tree := mdeclaration(l:Property, r:tree, e:tree);}
     .
   >.
   
