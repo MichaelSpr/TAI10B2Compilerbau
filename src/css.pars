@@ -39,7 +39,7 @@ root 	= stylesheet
 	  .
 
 stylesheet = ruleset_l 
-	     {tree := mstylesheet(ruleset_l:tree);}
+	     {tree := mstylesheet_l(ruleset_l:tree);}
 	     .
 
 ruleset_l = <

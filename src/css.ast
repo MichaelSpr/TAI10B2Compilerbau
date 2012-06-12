@@ -50,6 +50,31 @@ PROPERTY INPUT  /* all attributes are parameters of the generate the mXX() routi
 
 RULE  /* Here we define the node types */
   
+STYLESHEET = <
+  stylesheet_l = Ruleset_l : RULESET_L .
+  >.
+  
+RULESET_L = <
+  no_ruleset_l = .
+  ruleset_l = Next: RULESET_L REV
+	      Ruleset : RULESET .
+  >.
+  
+RULESET = <
+  ruleset = [Selector: tIdent]
+	    Declaration_l: DECLARATION_L .
+  >.
+  
+DECLARATION_L = < 
+  no_declaration_l = .
+  declaration_l = Next: DECLARATION_L REV
+		  Declaration : DECLARATION.
+  >.
+  
+DECLARATION = <
+  declaration = [Property : tStringRef]
+		Expr : EXPR .
+>.
 /* list of expressions */
 EXPRS = <
   no_exprs	= /* end of list */
@@ -64,6 +89,7 @@ EXPRS = <
 
 /* expressions */
 EXPR = [Pos: tPosition] <
+   value_const  = [Value : tStringRef] .
    int_const	= [Value: int]
 		.
    float_const	= [Value: double]
