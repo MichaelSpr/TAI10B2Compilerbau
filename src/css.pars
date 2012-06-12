@@ -69,7 +69,7 @@ declaration_l = <
     {tree := mdeclaration_l (l:tree, r:tree);}
     .
   >.
-  
+    
 declaration = <
   = l:property_const ':' r:expr ';' 
     {tree := mdeclaration(l:Property, r:tree);}
