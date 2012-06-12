@@ -54,9 +54,14 @@ ruleset_l = <
     .
   >.
 
-ruleset = l:selector_const '{' r:declaration_l '}' 
-	  {tree := mruleset(l:Selector, r:tree);}
-	  .
+ruleset = <
+  = '#' l:identifier_const '{' r:declaration_l '}' 
+    {tree := mruleset(l:Ident, r:tree);}
+    .
+  = l:identifier_const '{' r:declaration_l '}' 
+    {tree := mruleset(l:Ident, r:tree);}
+    .
+>.
 
 declaration_l = <
   = /* epsilon */
@@ -71,14 +76,11 @@ declaration_l = <
   >.
     
 declaration = <
-  = l:property_const ':' r:expr ';' 
-    {tree := mdeclaration(l:Property, r:tree);}
+  = l:identifier_const ':' r:expr ';' 
+    {tree := mdeclaration(l:Ident, r:tree);}
     .
   >.
   
-prio = "!important" 
-      {tree := mprio ();}
-      .
 expr = < 
   = c:int_const 
     {tree := mint_const (c:Position, c:Value);}
@@ -89,6 +91,12 @@ expr = <
   = c:value_const
     {tree := mvalue_const (c:Position, c:Value);}
     .
+  = c:identifier_const
+    {tree := midentifier_const (c:Position, c:Ident);}
+    .
+  = '#' c:hex_const
+    {tree := mhex_const (c:Position, c:Value);}
+    .
   >.
   
 
@@ -97,7 +105,8 @@ expr = <
 Tokens:        [pos:  tPosition ]       {pos   := NoPosition; } <
   int_const:        [Value: long]       {Value := 0;  } .
   float_const:      [Value: double]     {Value := 0.0;} .
-  selector_const:   [Selector: tIdent]     {Selector := NoIdent;  } .
+  identifier_const: [Ident: tIdent]     {Ident := NoIdent; } .
+  hex_const:   	    [Value: tStringRef] {Value := PutString ("0", 1); } .
   property_const:   [Property: tStringRef] {Property := PutString ("0", 1); } .
   value_const:      [Value: tStringRef] {Value := PutString ("0", 1); } .
 > . // Tokens

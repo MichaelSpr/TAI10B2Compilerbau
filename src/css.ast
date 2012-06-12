@@ -62,7 +62,8 @@ RULESET_L = <
   
 RULESET = <
   ruleset = [Selector: tIdent]
-	    Declaration_l: DECLARATION_L .
+	    Declaration_l: DECLARATION_L 
+	    .
   >.
   
 DECLARATION_L = < 
@@ -89,9 +90,12 @@ EXPRS = <
 
 /* expressions */
 EXPR = [Pos: tPosition] <
+   identifier_const = [Ident: tIdent] .
    value_const  = [Value : tStringRef] .
    int_const	= [Value: int]
 		.
+   hex_const    = [Value : tStringRef] .
+   
    float_const	= [Value: double]
 		.
    unary_expr   = [Op     : char ]   /* unary expressions */

@@ -35,11 +35,11 @@ int main (int argc, char *argv[])
 		fprintf (stderr, "Der Baum ist falsch aufgebaut\n");
 		exit(1);
 	}
-
+/*
 	SetDepthTree (20);
 	SetBoxTree   (100, 20);
 	DrawTree     (TreeRoot);
-
+*/
 	return 0;
 
 }
